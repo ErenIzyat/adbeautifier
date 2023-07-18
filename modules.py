@@ -47,7 +47,7 @@ def subdomain_discovery(domain):
     subfile.writelines(uniq_file.decode("utf-8"))
     print(f"File operations were finished, {new_directory}/{domain}_subdomains.txt")
 
-# ping domains
+# ping subdomains
 def ping_subdomains(domain):
     # Keşfedilen subdomainlerin IP adreslerini kontrol eder ve sonuçları dosyaya yazar.
     with open(f"{new_directory}/{domain}_subdomains.txt", "r") as subfile:
@@ -59,23 +59,24 @@ def ping_subdomains(domain):
         try:
             dnsx_output = subprocess.check_output(dnsx_command, shell=True)
             dnsx_output = dnsx_output.decode('utf-8').strip()
+            print("Dnsx scannig [+]")
 
-            # dnsx çıktısını doğru formata dönüştürelim
+           #dnsx çıktısını split ediyoruz.
             dnsx_data = dnsx_output.split()
             if len(dnsx_data) >= 2:
                 ip_address_dnsx = dnsx_data[-1]
                 if ip_address_dnsx and (subdomain, ip_address_dnsx) not in subdomains_with_unique_ip.values():
                     subdomains_with_unique_ip[subdomain] = ip_address_dnsx
-                    print(f"{subdomain} erişilebilir (dnsx). Cevap: {ip_address_dnsx}")
+                    print(f"{subdomain} is reachable. Response: {ip_address_dnsx}")
                 else:
-                    print(f"{subdomain} erişilebilir değil (dnsx).")
+                    print(f"{subdomain} isn't reachable.")
             else:
-                print(f"{subdomain} erişilebilir değil (dnsx).")
+                print(f"{subdomain} isn't reachable")
         except subprocess.CalledProcessError:
-            print(f"{subdomain} erişilebilir değil (dnsx).")
+            print(f"{subdomain} isn't reachable.")
 
-    # Alt alan adlarını ve eşsiz IP adreslerini dosyaya yazdıralım
+   
     with open(f"{new_directory}/{domain}_subswithip.txt", "w") as subswithip_file:
         for subdomain, ip_address in subdomains_with_unique_ip.items():
-            # Parantezleri kaldırarak yazdırma işlemi
+       
             subswithip_file.write(f"{subdomain}: {ip_address.strip('[]')}\n")
