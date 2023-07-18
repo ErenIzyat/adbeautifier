@@ -52,6 +52,7 @@ def ping_subdomains(domain):
     # Keşfedilen subdomainlerin IP adreslerini kontrol eder ve sonuçları dosyaya yazar.
     with open(f"{new_directory}/{domain}_subdomains.txt", "r") as subfile:
         subdomains = subfile.read().splitlines()
+        
 
     subdomains_with_unique_ip = {}
     for subdomain in subdomains:
@@ -59,8 +60,6 @@ def ping_subdomains(domain):
         try:
             dnsx_output = subprocess.check_output(dnsx_command, shell=True)
             dnsx_output = dnsx_output.decode('utf-8').strip()
-            print("Dnsx scannig [+]")
-
            #dnsx çıktısını split ediyoruz.
             dnsx_data = dnsx_output.split()
             if len(dnsx_data) >= 2:
@@ -80,3 +79,4 @@ def ping_subdomains(domain):
         for subdomain, ip_address in subdomains_with_unique_ip.items():
        
             subswithip_file.write(f"{subdomain}: {ip_address.strip('[]')}\n")
+            print("Dnsx scannig [+]")
