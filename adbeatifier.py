@@ -1,7 +1,7 @@
 import argparse
-from modules import subdomain_discovery
-from modules import ping_subdomains
+from modules import subdomain_discovery,ping_subdomains
 import subprocess
+import os
 class color:
     default = '\033[0m'
     cyan='\033[36m'
@@ -41,9 +41,23 @@ def main():
         ping_subdomains(target)
         
     if args.domains:
+        main_dir="adbeautifier_scan_logs"
+        try:
+            os.makedirs(main_dir)
+            print(f"Main directory '{main_dir}' created successfully.")
+        except OSError as e:
+            print(f"Error creating directory: {e}")
+        try:
+    
+            os.chdir(main_dir)
+        except OSError as e:
+            print(f"Hata: {e}")
+
         #print("input file: ", args.domains.name)
-        for line in args.domains:
-            pass
+        for target_domain in args.domains:
+            print(f"*****************target domain {target_domain.strip()}**************")
+            subdomain_discovery(target_domain.strip())
+            ping_subdomains(target_domain.strip())
             #print(line.strip())
     
 

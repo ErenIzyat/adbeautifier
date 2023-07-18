@@ -1,4 +1,6 @@
+import shutil
 import subprocess
+import os
 
 #check tool installation status
 def check_tools():
@@ -13,31 +15,45 @@ def make_uniq_file(subfile):
 
 #subdomain discovery
 def subdomain_discovery(domain):
-    subfile=open(f"{domain}_subdomains.txt","a")
+    global new_directory
+
+    new_directory=f"{domain}_adbeautifier_scan"
+
+    if os.path.exists(new_directory):
+        shutil.rmtree(new_directory)
+    
+    try:
+        os.makedirs(new_directory)
+        print(f"Directory {new_directory} created successfully.")
+    except OSError as e:
+        print(f"Error creating directory: {e}")
+    subfile=open(f"{new_directory}/{domain}_subdomains.txt","a")
 
     subfinder_command=f"subfinder -d {domain} -silent -nW" + "| awk '/Enumerating subdomains/ {found=1; next} found { print}' "
     amass_command=f"amass enum -passive -d {domain}"
     theharvester_command=f"theHarvester -d {domain} -b all "+"| awk '/Hosts found:/ { found=1; next } found { print }'| awk -F ':' '{print $1}' |awk '($0 ~ /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)'|uniq "
     
-
+    print("Subfinder scanning [+]")
     scan_for(subfinder_command,subfile)
+    print("Amass scanning [+]")
     scan_for(amass_command,subfile)
+    print("TheHarvester scanning [+]")
     scan_for(theharvester_command,subfile)
     subfile.close()    
     print("Subdomain discovery completed")
 
-    uniq_file=subprocess.check_output(f"sort {domain}_subdomains.txt | uniq",shell=True)
-    subfile=open(f"{domain}_subdomains.txt","w")
+    uniq_file=subprocess.check_output(f"sort {new_directory}/{domain}_subdomains.txt | uniq",shell=True)
+    subfile=open(f"{new_directory}/{domain}_subdomains.txt","w")
     subfile.writelines(uniq_file.decode("utf-8"))
-    print("uniq finished")
+    print(f"File operations were finished, {new_directory}/{domain}_subdomains.txt")
     
 #ping domains
 def ping_subdomains(domain):
-    with open(f"{domain}_subdomains.txt", "r") as subfile:
+    with open(f"{new_directory}/{domain}_subdomains.txt", "r") as subfile:
         subdomains = subfile.read().splitlines()
 
     subdomains_with_ip = []
-    with open("subswithip.txt", "w") as subswithip_file:
+    with open(f"{new_directory}/subswithip.txt", "w") as subswithip_file:
         for subdomain in subdomains:
             ping_command = f"dig +short {subdomain}"
             try:
