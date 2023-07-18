@@ -79,4 +79,4 @@ def ping_subdomains(domain):
         for subdomain, ip_address in subdomains_with_unique_ip.items():
        
             subswithip_file.write(f"{subdomain}: {ip_address.strip('[]')}\n")
-            print("Dnsx scannig [+]")
+    print("Dnsx scannig [+]")
