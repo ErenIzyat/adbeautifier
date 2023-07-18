@@ -15,7 +15,7 @@ def make_uniq_file(subfile):
 def subdomain_discovery(domain):
     subfile=open(f"{domain}_subdomains.txt","a")
 
-    subfinder_command=f"subfinder -d {domain} -nW" + "| awk '/Enumerating subdomains/ {found=1; next} found { print}' "
+    subfinder_command=f"subfinder -d {domain} -silent -nW" + "| awk '/Enumerating subdomains/ {found=1; next} found { print}' "
     amass_command=f"amass enum -passive -d {domain}"
     theharvester_command=f"theHarvester -d {domain} -b all "+"| awk '/Hosts found:/ { found=1; next } found { print }'| awk -F ':' '{print $1}' |awk '($0 ~ /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)'|uniq "
     

@@ -12,7 +12,7 @@ def main():
     if args.domain:
         target=args.domain
         subdomain_discovery(target)
-        #ping_subdomains(target)
+        ping_subdomains(target)
         
     if args.domains:
         #print("input file: ", args.domains.name)
