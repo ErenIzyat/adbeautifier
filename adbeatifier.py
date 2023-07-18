@@ -1,6 +1,32 @@
 import argparse
 from modules import subdomain_discovery
 from modules import ping_subdomains
+import subprocess
+class color:
+    default = '\033[0m'
+    cyan='\033[36m'
+    red='\033[31m'
+    purple='\033[95m'
+    lightgrey='\033[37m'
+    yellow='\033[93m'
+
+def banner(args=False):
+    subprocess.call('clear', shell=True)
+    print(color.cyan+"""                  .o8   .o8                                           .    o8o   .o88o.  o8o                     
+               "888  "888                                         .o8    `"'   888 `"  `"'                     
+ .oooo.    .oooo888   888oooo.   .ooooo.   .oooo.   oooo  oooo  .o888oo oooo  o888oo  oooo   .ooooo.  oooo d8b 
+`P  )88b  d88' `888   d88' `88b d88' `88b `P  )88b  `888  `888    888   `888   888    `888  d88' `88b `888""8P 
+ .oP"888  888   888   888   888 888ooo888  .oP"888   888   888    888    888   888     888  888ooo888  888     
+d8(  888  888   888   888   888 888    .o d8(  888   888   888    888 .  888   888     888  888    .o  888     
+`Y888""8o `Y8bod88P"  `Y8bod8P' `Y8bod8P' `Y888""8o  `V88V"V8P'   "888" o888o o888o   o888o `Y8bod8P' d888b                                                                                                                                                     
+ """+ color.default)
+    print("                  Automated asset discovery tool          ")
+    print("                      A project by "+color.red+"arzu-eren              "+ color.default)
+    print()
+    if(args and not args.domain and not args.domains):
+        print("You can use " + color.cyan + "adbeautifier -d domain" +color.default+" for set domain also.")
+        print("Check other options:" + color.cyan + "adbeautifier -h" +color.default)
+    print()
 
 def main():
     parser=argparse.ArgumentParser(description="Asset Discovery Automatizotion Tool",usage="python3 adbeautifier.py -d domain/-D domain/file/path")
@@ -8,7 +34,7 @@ def main():
     parser.add_argument("--domains","-D",type=argparse.FileType('r'),help="Scan for a given domain file")
     
     args = parser.parse_args()
-
+    banner(args)
     if args.domain:
         target=args.domain
         subdomain_discovery(target)
