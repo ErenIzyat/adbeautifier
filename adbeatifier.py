@@ -1,5 +1,6 @@
 import argparse
 from modules import subdomain_discovery
+from modules import ping_subdomains
 
 def main():
     parser=argparse.ArgumentParser(description="Asset Discovery Automatizotion Tool",usage="python3 adbeautifier.py -d domain/-D domain/file/path")
@@ -18,6 +19,7 @@ def main():
             pass
             #print(line.strip())
 
+ping_subdomains() #function
     
 
 if __name__ == "__main__":
