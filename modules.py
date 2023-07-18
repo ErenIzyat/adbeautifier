@@ -1,17 +1,39 @@
 import subprocess
 
+#check tool installation status
+def check_tools():
+    pass
+
+def scan_for(subdomain_tool_command,output_file):
+    output=subprocess.check_output(subdomain_tool_command,shell=True)
+    output_file.writelines(output.decode("utf-8"))
+
+def make_uniq_file(subfile):
+    pass
+
 #subdomain discovery
 def subdomain_discovery(domain):
-    subfinder_command=f"subfinder -d {domain} -nW"
-    print("Scanning begin")
-    output=subprocess.check_output(subfinder_command,shell=True)
+    subfile=open(f"{domain}_subdomains.txt","a")
+
+    subfinder_command=f"subfinder -d {domain} -nW" + "| awk '/Enumerating subdomains/ {found=1; next} found { print}' "
+    amass_command=f"amass enum -passive -d {domain}"
+    theharvester_command=f"theHarvester -d {domain} -b all "+"| awk '/Hosts found:/ { found=1; next } found { print }'| awk -F ':' '{print $1}' |awk '($0 ~ /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)'|uniq "
     
-    subfile=open("subds.txt","w")
-    subfile.writelines(output.decode("utf-8"))
-    subfile.close()
+
+    scan_for(subfinder_command,subfile)
+    scan_for(amass_command,subfile)
+    scan_for(theharvester_command,subfile)
+    subfile.close()    
+    print("Subdomain discovery completed")
+
+    uniq_file=subprocess.check_output(f"sort {domain}_subdomains.txt | uniq",shell=True)
+    subfile=open(f"{domain}_subdomains.txt","w")
+    subfile.writelines(uniq_file.decode("utf-8"))
+    print("uniq finished")
+    
 #ping domains
-def ping_subdomains():
-    with open("subds.txt", "r") as subfile:
+def ping_subdomains(domain):
+    with open(f"{domain}_subdomains.txt", "r") as subfile:
         subdomains = subfile.read().splitlines()
 
     subdomains_with_ip = []

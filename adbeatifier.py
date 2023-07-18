@@ -10,16 +10,15 @@ def main():
     args = parser.parse_args()
 
     if args.domain:
-        subdomain_discovery(args.domain)
-        pass
-        #print("Target domain: ",args.domain)
+        target=args.domain
+        subdomain_discovery(target)
+        #ping_subdomains(target)
+        
     if args.domains:
         #print("input file: ", args.domains.name)
         for line in args.domains:
             pass
             #print(line.strip())
-
-ping_subdomains() #function
     
 
 if __name__ == "__main__":
