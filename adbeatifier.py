@@ -1,5 +1,5 @@
 import argparse
-from modules import subdomain_discovery,ping_subdomains,get_pureip,port_scan
+from modules import subdomain_discovery,ping_subdomains,get_pureip,port_scan,find_websites
 import subprocess
 import os
 class color:
@@ -9,6 +9,7 @@ class color:
     purple='\033[95m'
     lightgrey='\033[37m'
     yellow='\033[93m'
+    green="\033[32m"
 
 def banner(args=False):
     subprocess.call('clear', shell=True)
@@ -24,7 +25,8 @@ d8(  888  888   888   888   888 888    .o d8(  888   888   888    888 .  888   8
     print("                      A project by "+color.red+"arzu-eren              "+ color.default)
     print()
     if(args and not args.domain and not args.domains):
-        print("You can use " + color.cyan + "adbeautifier -d domain" +color.default+" for set domain also.")
+        print("You can use\n" + color.cyan + "python adbeautifier.py -d domain" +color.default)
+        print(color.cyan+ "python adbeautifier.py -D domainfile.txt\n"+color.default )
         print("Check other options:" + color.cyan + "adbeautifier -h" +color.default)
     print()
 
@@ -32,6 +34,7 @@ def main():
     parser=argparse.ArgumentParser(description="Asset Discovery Automatizotion Tool",usage="python3 adbeautifier.py -d domain/-D domain/file/path")
     parser.add_argument("--domain","-d",type=str,help="Scan for a domain")
     parser.add_argument("--domains","-D",type=argparse.FileType('r'),help="Scan for a given domain file")
+    parser.add_argument("--no-banner","-nb",type=None,help="Hide the banner")
     
     args = parser.parse_args()
     banner(args)
@@ -41,6 +44,7 @@ def main():
         ping_subdomains(target)
         get_pureip(target)
         port_scan(target)
+        find_websites(target)
         
         
     if args.domains:
@@ -63,6 +67,7 @@ def main():
             ping_subdomains(target_domain.strip())
             get_pureip(target_domain.strip())
             port_scan(target_domain.strip())
+            find_websites(target_domain.strip())
         
             #print(line.strip())
     

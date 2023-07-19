@@ -54,7 +54,7 @@ def ping_subdomains(domain):
     with open(f"{new_directory}/{domain}_subdomains.txt", "r") as subfile:
         subdomains = subfile.read().splitlines()
         
-
+    print("Dnsx scannig [+]")
     subdomains_with_unique_ip = {}
     for subdomain in subdomains:
         dnsx_command = f'dnsx -l "{new_directory}/{domain}_subdomains.txt" -a -silent -resp '
@@ -67,7 +67,7 @@ def ping_subdomains(domain):
                 ip_address_dnsx = dnsx_data[-1]
                 if ip_address_dnsx and (subdomain, ip_address_dnsx) not in subdomains_with_unique_ip.values():
                     subdomains_with_unique_ip[subdomain] = ip_address_dnsx
-                    print(f"{subdomain} is reachable. Response: {ip_address_dnsx}")
+                    print(f"{subdomain} is reachable. Response: \033[32m{ip_address_dnsx}\033[0m")
                 else:
                     print(f"{subdomain} isn't reachable.")
             else:
@@ -80,7 +80,7 @@ def ping_subdomains(domain):
         for subdomain, ip_address in subdomains_with_unique_ip.items():
        
             subswithip_file.write(f"{subdomain}: {ip_address.strip('[]')}\n")
-    print("Dnsx scannig [+]")
+    
 
 def get_cdn(ip_address):
     try:
@@ -125,5 +125,21 @@ def port_scan(domain):
     except Exception as e:
         print(f"Error during port scanning: {e}")
         
-
+#httpx scanning
+def find_websites(domain):
+    
+    split_command="awk -F ':' '{print $1}' "+f"{new_directory}/{domain}_subswithip.txt"
+    subs=subprocess.run(split_command,shell=True,capture_output=True).stdout.decode("utf-8").strip()
+    with open(f"{new_directory}/{domain}_naabuscan.txt","a") as input:
+        input.writelines(subs)
+        
+    httpx_command=f"~/go/bin/httpx -list {new_directory}/{domain}_naabuip.txt -silent"
+    print("HTTPX scanning [+]")
+    try:
+        httpx_output=subprocess.run(httpx_command,shell=True,capture_output=True)
+        print(httpx_output.stdout.decode("utf-8").strip())
+        with open(f"{new_directory}/{domain}_websites.txt","w") as website_file:
+            website_file.writelines(httpx_output.stdout.decode("utf-8").strip())
+    except:
+        print(httpx_output.stderr)
         
