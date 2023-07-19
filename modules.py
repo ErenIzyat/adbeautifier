@@ -133,8 +133,8 @@ def find_websites(domain):
     with open(f"{new_directory}/{domain}_naabuscan.txt","a") as input:
         input.writelines(subs)
         
-    httpx_command=f"~/go/bin/httpx -list {new_directory}/{domain}_naabuip.txt -silent"
-    print("HTTPX scanning [+]")
+    httpx_command=f"~/go/bin/httpx -list {new_directory}/{domain}_naabuscan.txt -silent"
+    print("httpx scanning [+]")
     try:
         httpx_output=subprocess.run(httpx_command,shell=True,capture_output=True)
         print(httpx_output.stdout.decode("utf-8").strip())
