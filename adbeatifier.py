@@ -1,5 +1,5 @@
 import argparse
-from modules import subdomain_discovery,ping_subdomains
+from modules import subdomain_discovery,ping_subdomains,get_pureip,port_scan
 import subprocess
 import os
 class color:
@@ -39,6 +39,9 @@ def main():
         target=args.domain
         subdomain_discovery(target)
         ping_subdomains(target)
+        get_pureip(target)
+        port_scan(target)
+        
         
     if args.domains:
         main_dir="adbeautifier_scan_logs"
@@ -58,6 +61,9 @@ def main():
             print(f"*****************target domain {target_domain.strip()}**************")
             subdomain_discovery(target_domain.strip())
             ping_subdomains(target_domain.strip())
+            get_pureip(target_domain.strip())
+            port_scan(target_domain.strip())
+        
             #print(line.strip())
     
 

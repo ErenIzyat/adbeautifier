@@ -1,6 +1,7 @@
 import shutil
 import subprocess
 import os
+import ipwhois
 
 # check tool installation status
 def check_tools():
@@ -80,3 +81,49 @@ def ping_subdomains(domain):
        
             subswithip_file.write(f"{subdomain}: {ip_address.strip('[]')}\n")
     print("Dnsx scannig [+]")
+
+def get_cdn(ip_address):
+    try:
+        description = ipwhois.IPWhois(ip_address).lookup_whois()["nets"][0]["description"]
+        return description
+    except Exception as e:
+        return f"Error: {e}"
+
+      
+def get_pureip(domain):
+    
+    ip_addresses = []
+
+    with open(f"{new_directory}/{domain}_subswithip.txt", "r") as file:
+        for line in file:
+            subdomain, ip_address = line.strip().split(":")
+            ip_addresses.append(ip_address.strip())
+
+    for ip_address in ip_addresses:
+        description = get_cdn(ip_address)
+        print(f"{ip_address}: {description}")
+
+    non_cloudflare_ips = []
+
+    for ip_address in ip_addresses:
+        description = get_cdn(ip_address)
+        if "cloudflare" not in description.lower() and "amazon" not in description.lower():
+            non_cloudflare_ips.append(ip_address)
+
+    with open(f"{new_directory}/{domain}_naabuip.txt", "w") as output_file:
+        for ip in non_cloudflare_ips:
+            output_file.write(f"{ip}\n")
+
+def port_scan(domain):
+    
+    naabu_command = f'naabu -silent -l "{new_directory}/{domain}_naabuip.txt" -o "{new_directory}/{domain}_naabuscan.txt" -nmap-cli "nmap -sV -Pn -oX {new_directory}/{domain}_nmapscan"'
+
+    # Run the naabu command
+    try:
+        os.system(naabu_command)
+        print("Port scanning completed.")
+    except Exception as e:
+        print(f"Error during port scanning: {e}")
+        
+
+        
