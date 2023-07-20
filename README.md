@@ -1,6 +1,7 @@
 
 # adbeautifier
-![mainscreen]()
+![mainscreen](![mainScreen](https://github.com/ErenIzyat/adbeautifier/assets/56388061/1c8ca455-921e-4e25-b360-cce90ce392b2)
+)
 
 Adbeautifier aims to automate the discovery process. For the adbeautifier to work properly, you need to do the loading phase properly.
 The following tools must be installed before use adbeautifier
@@ -42,9 +43,15 @@ you can scan for a given domain file with this command
 - python3 adbeatifier.py -d example.com
 - python3 adbeatifier.py -D domanlist.txt
 
-  
+
+
+
+
+
+
 ## Screenshot
 
-![working](C:\Users\eren\Desktop\example\example.png)
+![working](![example](https://github.com/ErenIzyat/adbeautifier/assets/56388061/4cd40e25-9f86-4e7c-bcee-7f23796f690b)
+)
 
   
