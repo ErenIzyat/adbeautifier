@@ -1,6 +1,6 @@
 
 # adbeautifier
-![mainscreen](C:\Users\eren\Desktop\example\mainScreen.png)
+![mainscreen]()
 
 Adbeautifier aims to automate the discovery process. For the adbeautifier to work properly, you need to do the loading phase properly.
 The following tools must be installed before use adbeautifier
