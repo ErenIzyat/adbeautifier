@@ -3,7 +3,9 @@ import shutil
 import subprocess
 import os
 import ipwhois
+import openpyxl
 import pandas as pd
+import xml.etree.ElementTree as ET
 
 # check tool installation status
 def check_tools():
@@ -142,34 +144,95 @@ def find_websites(domain):
     
     except:
         print(httpx_output.stderr)
-        
+def nmap_xml_to_csv(xml_file, csv_file):
+    # Parse the XML file
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+
+    # Open a CSV file for writing
+    with open(csv_file, 'w', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile)
+
+        # Write the header row
+        # header = ['IP', 'Hostname', 'Port', 'Service']
+        # csv_writer.writerow(header)
+
+        # Write the data rows
+        for host in root.findall('.//host'):
+            ip_address = host.find('.//address[@addrtype="ipv4"]').attrib['addr']
+            hostname = host.find('.//hostname').attrib.get('name', '')
+            for port in host.findall('.//port'):
+                port_number = port.attrib['portid']
+                service = port.find('.//service').attrib['name']
+                csv_writer.writerow([ip_address, hostname, port_number, service])        
 
 
 def create_table(input_files, output_file):
-    # Read text files and store the data in a list of dataframes
-
-    df0=pd.read_csv(input_files[0],header=None,names=['Domain'])
+    df0 = pd.read_csv(input_files[0], header=None, names=['Domain'])
     df1 = pd.read_csv(input_files[1], delimiter=':', header=None, names=['Subdomain', 'IP'])
-    df2 = pd.read_csv(input_files[2], header=None, names=['Port'])
+
+    port_list = []
+    with open(input_files[2], "r") as file:
+        for line in file:
+            line = line.strip()
+            if ":" in line:
+                port_list.append(line)
+
+    df2 = pd.DataFrame({'Port': port_list})
     df3 = pd.read_csv(input_files[3], header=None, names=['Website'])
-
-    merged_data = pd.concat([df0,df1, df2, df3], axis=1)
-
+    df4=pd.read_csv(input_files[4],delimiter=",",header=None,names=['IP','Hostname','Port','Service'])
+    
+    emptydata = {"": []}
+    df_blank = pd.DataFrame(emptydata)
+    merged_data = pd.concat([df0,df1,df2,df3,df_blank,df_blank,df4], axis=1)
 
     # Save the merged data to a CSV file
     merged_data.to_csv(output_file, index=False)
 
+def convert_csv_to_xlsx(input_csv, output_xlsx):
+    # Read the CSV file
+    df = pd.read_csv(input_csv)
+    
+
+    # Save the dataframe to an Excel file
+    df.to_excel(output_xlsx, index=False)
+    os.remove(input_csv)
+
+
 def make_report(domain):
-    #new_directory = f"{domain}_adbeautifier_scan"
+    new_directory = f"{domain}_adbeautifier_scan"
     if type(domain) is str:
         print("Creating asset discovery report [+]")
-        with open(f"{new_directory}/target.txt","w") as t:
+        with open(f"{new_directory}/target.txt", "w") as t:
             t.write(domain)
-        input_files = [f"{new_directory}/target.txt",f"{new_directory}/{domain}_subswithip.txt",  f"{new_directory}/{domain}_naabuscan.txt",f"{new_directory}/{domain}_websites.txt"]
-        output_file = "report.csv"                             
+        nmap_xml_to_csv(f"{new_directory}/{domain}_nmapscan",f"{new_directory}/nmapscan.csv")
 
-        create_table(input_files, output_file)
+        input_files = [f"{new_directory}/target.txt",f"{new_directory}/{domain}_subswithip.txt",  f"{new_directory}/{domain}_naabuscan.txt",f"{new_directory}/{domain}_websites.txt",f"{new_directory}/nmapscan.csv"]
+        output_csv = f"{domain}_report.csv"
+        output_xlsx = f"{domain}_report.xlsx"
+
+        create_table(input_files, output_csv)
+        convert_csv_to_xlsx(output_csv, output_xlsx)
+
+        # Sütun genişliklerini ayarlama
+        workbook = openpyxl.load_workbook(output_xlsx)
+        sheet = workbook.active
+        sheet.column_dimensions['A'].width = 25
+        sheet.column_dimensions['B'].width = 25
+        sheet.column_dimensions['C'].width = 25
+        sheet.column_dimensions['D'].width = 25
+        sheet.column_dimensions['E'].width = 25
+        sheet.column_dimensions['F'].width = 25
+        sheet.column_dimensions['G'].width = 25
+        sheet.column_dimensions['H'].width = 25
+        sheet.column_dimensions['I'].width = 25
+        sheet.column_dimensions['J'].width = 25
+        sheet.column_dimensions['K'].width = 25
+        
+        workbook.save(output_xlsx)
+
+        
     else:
-        with open("targets.txt","w") as ds:
+        with open("targets.txt", "w") as ds:
             ds.writelines(domain)
         print("Couldnt create report for multiple target domains for now")
