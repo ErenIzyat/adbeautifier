@@ -6,6 +6,7 @@ import ipwhois
 import openpyxl
 import pandas as pd
 import xml.etree.ElementTree as ET
+import glob
 
 # check tool installation status
 def check_tools():
@@ -168,6 +169,8 @@ def nmap_xml_to_csv(xml_file, csv_file):
 
 
 def create_table(input_files, output_file):
+    emptydata = {"": []}
+    df_blank = pd.DataFrame(emptydata)
     df0 = pd.read_csv(input_files[0], header=None, names=['Domain'])
     df1 = pd.read_csv(input_files[1], delimiter=':', header=None, names=['Subdomain', 'IP'])
 
@@ -180,11 +183,11 @@ def create_table(input_files, output_file):
 
     df2 = pd.DataFrame({'Port': port_list})
     df3 = pd.read_csv(input_files[3], header=None, names=['Website'])
-    df4=pd.read_csv(input_files[4],delimiter=",",header=None,names=['IP','Hostname','Port','Service'])
-    
-    emptydata = {"": []}
-    df_blank = pd.DataFrame(emptydata)
-    merged_data = pd.concat([df0,df1,df2,df3,df_blank,df_blank,df4], axis=1)
+    if len(input_files)==5:
+        df4=pd.read_csv(input_files[4],delimiter=",",header=None,names=['IP','Hostname','Port','Service'])
+        merged_data = pd.concat([df0,df1,df2,df3,df_blank,df_blank,df4], axis=1)
+    else:
+        merged_data = pd.concat([df0,df1,df2,df3], axis=1)
 
     # Save the merged data to a CSV file
     merged_data.to_csv(output_file, index=False)
@@ -196,7 +199,6 @@ def convert_csv_to_xlsx(input_csv, output_xlsx):
 
     # Save the dataframe to an Excel file
     df.to_excel(output_xlsx, index=False)
-    os.remove(input_csv)
 
 
 def make_report(domain):
@@ -205,9 +207,12 @@ def make_report(domain):
         print("Creating asset discovery report [+]")
         with open(f"{new_directory}/target.txt", "w") as t:
             t.write(domain)
-        nmap_xml_to_csv(f"{new_directory}/{domain}_nmapscan",f"{new_directory}/nmapscan.csv")
+        if os.path.exists(f"{new_directory}/{domain}_nmapscan"):
+            nmap_xml_to_csv(f"{new_directory}/{domain}_nmapscan",f"{new_directory}/nmapscan.csv")
+            input_files = [f"{new_directory}/target.txt",f"{new_directory}/{domain}_subswithip.txt",  f"{new_directory}/{domain}_naabuscan.txt",f"{new_directory}/{domain}_websites.txt",f"{new_directory}/nmapscan.csv"]
+        else:
+            input_files = [f"{new_directory}/target.txt",f"{new_directory}/{domain}_subswithip.txt",  f"{new_directory}/{domain}_naabuscan.txt",f"{new_directory}/{domain}_websites.txt"]
 
-        input_files = [f"{new_directory}/target.txt",f"{new_directory}/{domain}_subswithip.txt",  f"{new_directory}/{domain}_naabuscan.txt",f"{new_directory}/{domain}_websites.txt",f"{new_directory}/nmapscan.csv"]
         output_csv = f"{domain}_report.csv"
         output_xlsx = f"{domain}_report.xlsx"
 
@@ -232,7 +237,26 @@ def make_report(domain):
         workbook.save(output_xlsx)
 
         
-    else:
-        with open("targets.txt", "w") as ds:
-            ds.writelines(domain)
-        print("Couldnt create report for multiple target domains for now")
+    # else:
+    #     with open("targets.txt", "w") as ds:
+    #         ds.writelines(domain)
+    #     print("Couldnt create report for multiple target domains for now")
+
+def merge_reports():
+
+    # Get a list of all CSV files in the directory
+    csv_files = glob.glob("*.csv")
+
+    # Initialize an empty DataFrame to store the merged data
+    merged_df = pd.DataFrame()
+
+    # Read each CSV file and merge it into the main DataFrame
+    for csv_file in csv_files:
+        df = pd.read_csv(csv_file)
+        merged_df = pd.concat([merged_df, df], ignore_index=True)
+
+    # Save the merged DataFrame to a new CSV file
+    #merged_df=merged_df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+    merged_df.to_csv("general_report.csv", index=False)
+
+    print("CSV files merged successfully.")

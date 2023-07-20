@@ -1,5 +1,5 @@
 import argparse
-from modules import make_report, subdomain_discovery,ping_subdomains,get_pureip,port_scan,find_websites
+from modules import make_report, subdomain_discovery,ping_subdomains,get_pureip,port_scan,find_websites,merge_reports
 import subprocess
 import os
 class color:
@@ -67,8 +67,10 @@ def main():
             get_pureip(target_domain.strip())
             port_scan(target_domain.strip())
             find_websites(target_domain.strip())   
-         
-        make_report(args.domains)
+            make_report(target_domain.strip())
+        print("Merging reports [+]")
+        merge_reports()
 
 if __name__ == "__main__":
     main()
+    print("Asset discovery completed .")
