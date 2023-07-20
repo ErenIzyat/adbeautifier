@@ -107,12 +107,11 @@ def get_pureip(domain):
             description = get_cdn(ip_address)
             if description is not None:
                 print(f"{ip_address}: {description}")
-            else:
-                print(f"{ip_address}: IP ADDRESS NOT FOUND IN IPWHOIS DATABASE.")
+            
             if "cloudflare" not in description.lower() and "amazon" not in description.lower():
                 non_cloudflare_ips.append(ip_address)
         except Exception as e:
-            print(f"{ip_address}: IP ADDRESS NOT FOUND IN IPWHOIS DATABASE.")
+
             non_cloudflare_ips.append(ip_address)  # Eğer bir hata alırsak, yine de non_cloudflare_ips'e ekleyelim
 
     with open(f"{new_directory}/{domain}_naabuip.txt", "w") as output_file:
@@ -164,7 +163,12 @@ def nmap_xml_to_csv(xml_file, csv_file):
         # Write the data rows
         for host in root.findall('.//host'):
             ip_address = host.find('.//address[@addrtype="ipv4"]').attrib['addr']
-            hostname = host.find('.//hostname').attrib.get('name', '')
+            hostname_element = host.find('.//hostname')
+            if hostname_element is not None:
+                hostname = hostname_element.attrib.get('name', '')
+            else:
+                hostname = ''
+            
             for port in host.findall('.//port'):
                 port_number = port.attrib['portid']
                 service = port.find('.//service').attrib['name']
