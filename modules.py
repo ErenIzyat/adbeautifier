@@ -4,6 +4,8 @@ import subprocess
 import os
 import ipwhois
 import pandas as pd
+import xml.etree.ElementTree as ET
+
 
 # check tool installation status
 def check_tools():
@@ -142,7 +144,28 @@ def find_websites(domain):
     
     except:
         print(httpx_output.stderr)
-        
+
+def nmap_xml_to_csv(xml_file, csv_file):
+    # Parse the XML file
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+
+    # Open a CSV file for writing
+    with open(csv_file, 'w', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile)
+
+        # Write the header row
+        # header = ['IP', 'Hostname', 'Port', 'Service']
+        # csv_writer.writerow(header)
+
+        # Write the data rows
+        for host in root.findall('.//host'):
+            ip_address = host.find('.//address[@addrtype="ipv4"]').attrib['addr']
+            hostname = host.find('.//hostname').attrib.get('name', '')
+            for port in host.findall('.//port'):
+                port_number = port.attrib['portid']
+                service = port.find('.//service').attrib['name']
+                csv_writer.writerow([ip_address, hostname, port_number, service])
 
 
 def create_table(input_files, output_file):
@@ -152,23 +175,28 @@ def create_table(input_files, output_file):
     df1 = pd.read_csv(input_files[1], delimiter=':', header=None, names=['Subdomain', 'IP'])
     df2 = pd.read_csv(input_files[2], header=None, names=['Port'])
     df3 = pd.read_csv(input_files[3], header=None, names=['Website'])
-
-    merged_data = pd.concat([df0,df1, df2, df3], axis=1)
+    df4=pd.read_csv(input_files[4],delimiter=",",header=None,names=['IP','Hostname','Port','Service'])
+    emptydata = {"": []}
+    df_blank = pd.DataFrame(emptydata)
+    merged_data = pd.concat([df0,df1,df2,df3,df_blank,df_blank,df4], axis=1)
 
 
     # Save the merged data to a CSV file
     merged_data.to_csv(output_file, index=False)
 
 def make_report(domain):
-    #new_directory = f"{domain}_adbeautifier_scan"
+    new_directory = f"{domain}_adbeautifier_scan"
     if type(domain) is str:
         print("Creating asset discovery report [+]")
         with open(f"{new_directory}/target.txt","w") as t:
             t.write(domain)
-        input_files = [f"{new_directory}/target.txt",f"{new_directory}/{domain}_subswithip.txt",  f"{new_directory}/{domain}_naabuscan.txt",f"{new_directory}/{domain}_websites.txt"]
-        output_file = "report.csv"                             
+        nmap_xml_to_csv(f"{new_directory}/{domain}_nmapscan",f"{new_directory}/nmapscan.csv")
+
+        input_files = [f"{new_directory}/target.txt",f"{new_directory}/{domain}_subswithip.txt",  f"{new_directory}/{domain}_naabuscan.txt",f"{new_directory}/{domain}_websites.txt",f"{new_directory}/nmapscan.csv"]
+        output_file = f"{domain}_report.csv"                             
 
         create_table(input_files, output_file)
+        
     else:
         with open("targets.txt","w") as ds:
             ds.writelines(domain)
