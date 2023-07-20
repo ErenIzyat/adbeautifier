@@ -6,6 +6,10 @@ import ipwhois
 import openpyxl
 import pandas as pd
 import xml.etree.ElementTree as ET
+<<<<<<< HEAD
+=======
+
+>>>>>>> b1516b7202e11e0711a74bad7a49aa46ce53701f
 
 # check tool installation status
 def check_tools():
@@ -144,6 +148,10 @@ def find_websites(domain):
     
     except:
         print(httpx_output.stderr)
+<<<<<<< HEAD
+=======
+
+>>>>>>> b1516b7202e11e0711a74bad7a49aa46ce53701f
 def nmap_xml_to_csv(xml_file, csv_file):
     # Parse the XML file
     tree = ET.parse(xml_file)
@@ -164,7 +172,11 @@ def nmap_xml_to_csv(xml_file, csv_file):
             for port in host.findall('.//port'):
                 port_number = port.attrib['portid']
                 service = port.find('.//service').attrib['name']
+<<<<<<< HEAD
                 csv_writer.writerow([ip_address, hostname, port_number, service])        
+=======
+                csv_writer.writerow([ip_address, hostname, port_number, service])
+>>>>>>> b1516b7202e11e0711a74bad7a49aa46ce53701f
 
 
 def create_table(input_files, output_file):
@@ -181,10 +193,17 @@ def create_table(input_files, output_file):
     df2 = pd.DataFrame({'Port': port_list})
     df3 = pd.read_csv(input_files[3], header=None, names=['Website'])
     df4=pd.read_csv(input_files[4],delimiter=",",header=None,names=['IP','Hostname','Port','Service'])
+<<<<<<< HEAD
     
     emptydata = {"": []}
     df_blank = pd.DataFrame(emptydata)
     merged_data = pd.concat([df0,df1,df2,df3,df_blank,df_blank,df4], axis=1)
+=======
+    emptydata = {"": []}
+    df_blank = pd.DataFrame(emptydata)
+    merged_data = pd.concat([df0,df1,df2,df3,df_blank,df_blank,df4], axis=1)
+
+>>>>>>> b1516b7202e11e0711a74bad7a49aa46ce53701f
 
     # Save the merged data to a CSV file
     merged_data.to_csv(output_file, index=False)
@@ -206,6 +225,7 @@ def make_report(domain):
         with open(f"{new_directory}/target.txt", "w") as t:
             t.write(domain)
         nmap_xml_to_csv(f"{new_directory}/{domain}_nmapscan",f"{new_directory}/nmapscan.csv")
+<<<<<<< HEAD
 
         input_files = [f"{new_directory}/target.txt",f"{new_directory}/{domain}_subswithip.txt",  f"{new_directory}/{domain}_naabuscan.txt",f"{new_directory}/{domain}_websites.txt",f"{new_directory}/nmapscan.csv"]
         output_csv = f"{domain}_report.csv"
@@ -231,6 +251,13 @@ def make_report(domain):
         
         workbook.save(output_xlsx)
 
+=======
+
+        input_files = [f"{new_directory}/target.txt",f"{new_directory}/{domain}_subswithip.txt",  f"{new_directory}/{domain}_naabuscan.txt",f"{new_directory}/{domain}_websites.txt",f"{new_directory}/nmapscan.csv"]
+        output_file = f"{domain}_report.csv"                             
+
+        create_table(input_files, output_file)
+>>>>>>> b1516b7202e11e0711a74bad7a49aa46ce53701f
         
     else:
         with open("targets.txt", "w") as ds:
