@@ -1,7 +1,9 @@
+import csv
 import shutil
 import subprocess
 import os
 import ipwhois
+import pandas as pd
 
 # check tool installation status
 def check_tools():
@@ -10,9 +12,6 @@ def check_tools():
 def scan_for(subdomain_tool_command, output_file):
     output = subprocess.check_output(subdomain_tool_command, shell=True)
     output_file.writelines(output.decode("utf-8"))
-
-def make_uniq_file(subfile):
-    pass
 
 # subdomain discovery
 def subdomain_discovery(domain):
@@ -140,6 +139,35 @@ def find_websites(domain):
         print(httpx_output.stdout.decode("utf-8").strip())
         with open(f"{new_directory}/{domain}_websites.txt","w") as website_file:
             website_file.writelines(httpx_output.stdout.decode("utf-8").strip())
+    
     except:
         print(httpx_output.stderr)
         
+
+
+def create_table(input_files, output_file):
+    # Read text files and store the data in a list of dataframes
+
+    df0=pd.read_csv(input_files[0],header=None,names=['Domain'])
+    df1 = pd.read_csv(input_files[1], delimiter=':', header=None, names=['Subdomain', 'IP'])
+    df2 = pd.read_csv(input_files[2], header=None, names=['Port'])
+    df3 = pd.read_csv(input_files[3], header=None, names=['Website'])
+
+    merged_data = pd.concat([df0,df1, df2, df3], axis=1)
+
+
+    # Save the merged data to a CSV file
+    merged_data.to_csv(output_file, index=False)
+
+def make_report(domain):
+    #new_directory = f"{domain}_adbeautifier_scan"
+    if type(domain) is str:
+        print("Creating asset discovery report [+]")
+        with open(f"{new_directory}/target.txt","w") as t:
+            t.write(domain)
+        input_files = [f"{new_directory}/target.txt",f"{new_directory}/{domain}_subswithip.txt",  f"{new_directory}/{domain}_naabuscan.txt",f"{new_directory}/{domain}_websites.txt"]
+        output_file = "report.csv"                             
+
+        create_table(input_files, output_file)
+    else:
+        print("Couldnt create report for multiple target domains for now")

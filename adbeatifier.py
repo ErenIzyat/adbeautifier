@@ -1,5 +1,5 @@
 import argparse
-from modules import subdomain_discovery,ping_subdomains,get_pureip,port_scan,find_websites
+from modules import make_report, subdomain_discovery,ping_subdomains,get_pureip,port_scan,find_websites
 import subprocess
 import os
 class color:
@@ -45,6 +45,7 @@ def main():
         get_pureip(target)
         port_scan(target)
         find_websites(target)
+        make_report(target)
         
         
     if args.domains:
@@ -60,17 +61,19 @@ def main():
         except OSError as e:
             print(f"Hata: {e}")
 
-        #print("input file: ", args.domains.name)
+        with open("domains.txt","w") as ds:
+            ds.writelines(args.domains)
+
+        
         for target_domain in args.domains:
             print(f"*****************target domain {target_domain.strip()}**************")
             subdomain_discovery(target_domain.strip())
             ping_subdomains(target_domain.strip())
             get_pureip(target_domain.strip())
             port_scan(target_domain.strip())
-            find_websites(target_domain.strip())
-        
-            #print(line.strip())
-    
+            find_websites(target_domain.strip())   
+         
+        make_report(args.domains)
 
 if __name__ == "__main__":
     main()
