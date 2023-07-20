@@ -93,7 +93,6 @@ def get_cdn(ip_address):
 
       
 def get_pureip(domain):
-    
     ip_addresses = []
 
     with open(f"{new_directory}/{domain}_subswithip.txt", "r") as file:
@@ -101,16 +100,20 @@ def get_pureip(domain):
             subdomain, ip_address = line.strip().split(":")
             ip_addresses.append(ip_address.strip())
 
-    for ip_address in ip_addresses:
-        description = get_cdn(ip_address)
-        print(f"{ip_address}: {description}")
-
     non_cloudflare_ips = []
 
     for ip_address in ip_addresses:
-        description = get_cdn(ip_address)
-        if "cloudflare" not in description.lower() and "amazon" not in description.lower():
-            non_cloudflare_ips.append(ip_address)
+        try:
+            description = get_cdn(ip_address)
+            if description is not None:
+                print(f"{ip_address}: {description}")
+            else:
+                print(f"{ip_address}: IP ADDRESS NOT FOUND IN IPWHOIS DATABASE.")
+            if "cloudflare" not in description.lower() and "amazon" not in description.lower():
+                non_cloudflare_ips.append(ip_address)
+        except Exception as e:
+            print(f"{ip_address}: IP ADDRESS NOT FOUND IN IPWHOIS DATABASE.")
+            non_cloudflare_ips.append(ip_address)  # Eğer bir hata alırsak, yine de non_cloudflare_ips'e ekleyelim
 
     with open(f"{new_directory}/{domain}_naabuip.txt", "w") as output_file:
         for ip in non_cloudflare_ips:
