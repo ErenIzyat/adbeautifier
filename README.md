@@ -1,6 +1,8 @@
 
 # adbeautifier
-![mainscreen](https://github.com/ErenIzyat/adbeautifier/assets/56388061/1c8ca455-921e-4e25-b360-cce90ce392b2)
+![mainScreen](https://github.com/ErenIzyat/adbeautifier/assets/56388061/12877145-7233-4f89-be47-2f2dbf44040b)
+
+
 
 Adbeautifier aims to automate the discovery process. For the adbeautifier to work properly, you need to do the loading phase properly.
 The following tools must be installed before use adbeautifier
@@ -49,8 +51,10 @@ you can scan for a given domain file with this command
 
 
 ## Screenshot
+![example](https://github.com/ErenIzyat/adbeautifier/assets/56388061/cd48d607-89ff-43d1-be93-33793291b3a4)
 
-![working](https://github.com/ErenIzyat/adbeautifier/assets/56388061/4cd40e25-9f86-4e7c-bcee-7f23796f690b)
+
+
 
 
   
