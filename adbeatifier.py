@@ -56,17 +56,12 @@ def main():
         except OSError as e:
             print(f"Error creating directory: {e}")
         try:
-    
             os.chdir(main_dir)
         except OSError as e:
             print(f"Hata: {e}")
 
-        with open("domains.txt","w") as ds:
-            ds.writelines(args.domains)
-
-        
         for target_domain in args.domains:
-            print(f"*****************target domain {target_domain.strip()}**************")
+            print(f"*****************\033[93mTarget domain: {target_domain.strip()}\033[0m**************")
             subdomain_discovery(target_domain.strip())
             ping_subdomains(target_domain.strip())
             get_pureip(target_domain.strip())

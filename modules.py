@@ -170,4 +170,6 @@ def make_report(domain):
 
         create_table(input_files, output_file)
     else:
+        with open("targets.txt","w") as ds:
+            ds.writelines(domain)
         print("Couldnt create report for multiple target domains for now")
